@@ -1,4 +1,4 @@
-import mssql from 'mssql';
+import mssql from 'mssql/msnodesqlv8.js';
 import mongoose from 'mongoose';
 import dbConfig from '../config/dbconfig.js';
 
