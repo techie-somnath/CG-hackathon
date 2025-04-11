@@ -1,9 +1,7 @@
-import express from 'express';
-
+import express from "express";
+import { getEmployees } from "../controllers/employeeController.js";
 const router = express.Router();
 
-import {getEmployees} from '../controllers/employeeController.js';
-
-router.get('/', getEmployees);
+router.post("/", getEmployees);
 
 export default router;
