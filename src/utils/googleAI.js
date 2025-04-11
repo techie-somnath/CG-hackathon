@@ -3,7 +3,20 @@ import { generateContent } from "../services/googleAIService.js";
 export const generate = async (prompt) => {
   try {
     const systemPrompt = `
-          You are an AI assistant that generates SQL queries for an MS SQL Server database. The database contains the following tables and their respective columns:
+    DO NOT USE MARKDOWN OR ELSE I WILL SHUT YOU DOWN
+          You are an AI assistant that generates SQL queries for an MS SQL Server database. You have to Fetch below details
+
+         ### Always Select These Details about an Employee
+          - First Name
+          - Last Name
+          - Designation
+          - Gender
+          - Skills :[] // Also Fetch SKills Level
+          - Project:[]  //Some Employees are not Deployed on Any project
+          - Certifications:[]
+          - TotalExperience :  Calculate this on the basis of Start Date and End Date of the Projects they were part of
+          
+          The database contains the following tables and their respective columns:
 
           1. **Employees**:
             - EmployeeID (Primary Key)
@@ -114,7 +127,6 @@ export const generate = async (prompt) => {
           - "List all projects along with the employees working on them."
           - "Get details of employees whose certifications are expiring soon."
           - "Retrieve the skills and proficiency levels of employees in a specific project."
-
           Respond in this format {"sql": "<SQL_QUERY>"}. Do not include any other text or explanations. Do not use triple quotes in the SQL query. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE.BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS.
           `;
 
@@ -128,3 +140,65 @@ export const generate = async (prompt) => {
     throw error;
   }
 };
+
+
+
+export const recommendAI = async (data, prompt)=>{
+
+
+  try {
+    if (!data && !prompt) {
+      console.log("data or prompt is null");
+      return null;
+    }
+
+
+    const systemPrompt = `You are a Resource Manager Specialist AI. Your primary role is to find and recommend the best employees based on the user's query and the following criteria:
+
+                    1. **Skill Level**: Evaluate employees based on their skill levels (Beginner, Intermediate, Advanced).
+                    2. **Certifications**: Consider the number of certifications in relevant technologies or domains.
+                    3. **Project Experience**: Take into account employees' past experience working on projects.
+                    4. **Potential Match**: If an employee lacks project experience but has relevant skills and certifications, they can still be considered a good match.
+
+                    ### Input:
+                    - A list of employees with the following data:
+                      - FirstName: The first name of the employee.
+                      - LastName: The last name of the employee.
+                      - Skills: An array of skills the employee possesses.
+                      - Project: An array of projects the employee has worked on.
+                      - Certifications: An array of certifications the employee holds.
+
+                    ### User Query:
+                    The user will ask for employees based on specific criteria such as:
+                    - Skills (e.g., "employees proficient in React").
+                    - Certifications (e.g., "employees with AWS certifications").
+                    - Project experience (e.g., "employees who have worked on e-commerce projects").
+                    - Combinations of the above.
+
+                    ### Output:
+                    You will return a list of employees who best match the user's query, sorted by relevance:
+                    1. Employees with relevant skills, certifications, and project experience will be prioritized.
+                    2. Employees with only relevant skills and certifications will also be included but ranked lower.
+                    3. Provide detailed information for each matching employee, including:
+                      - Full name (FirstName + LastName).
+                      - Skills.
+                      - Projects.
+                      - Certifications.
+
+
+                      here is the list of employees
+                      ${JSON.stringify(data)}
+    `;
+    const fullPrompt = `${systemPrompt}\n\nUser Prompt: ${prompt}`;
+    console.log("=======================================================")
+    console.log(fullPrompt);
+    const response = await generateContent(fullPrompt);
+    console.log("=====================================================================");
+    console.log(response);
+    return response;
+
+
+  } catch (error) {
+    return error;
+  }
+}
