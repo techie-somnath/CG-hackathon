@@ -13,7 +13,8 @@ export const getEmployees = async (req, res) => {
         "designation": "A2",
         "certifications": ["AWS Certified Developer", "Oracle Java Certification"],
         "pastProjects": ["E-commerce platform", "Inventory Management System"],
-        "availability": "Available now"
+        "availability": "Available now",
+        "isRejected":false
       },
       {
         "employeeId": "E102",
@@ -23,7 +24,8 @@ export const getEmployees = async (req, res) => {
         "designation": "C1",
         "certifications": ["Full Stack Developer Certification"],
         "pastProjects": ["Social Media Application", "Real-time Chat App"],
-        "availability": "Available now"
+        "availability": "Available now",
+        "isRejected":false
       }
     ],
     "specializedTeam": [
@@ -35,7 +37,8 @@ export const getEmployees = async (req, res) => {
         "designation": "M1",
         "certifications": ["Certified Data Scientist", "Google TensorFlow Developer"],
         "pastProjects": ["AI Fraud Detection System", "Predictive Analytics Tool"],
-        "availability": "Available in 3 weeks"
+        "availability": "Available in 3 weeks",
+        "isRejected":false
       },
       {
         "employeeId": "E202",
@@ -45,7 +48,8 @@ export const getEmployees = async (req, res) => {
         "designation": "M2",
         "certifications": ["Docker Certified Associate", "AWS Certified DevOps Engineer"],
         "pastProjects": ["Cloud Deployment Automation", "Infrastructure as Code"],
-        "availability": "Available in 2 weeks"
+        "availability": "Available in 2 weeks",
+        "isRejected":false
       }
     ]
   }
