@@ -11,6 +11,7 @@ async function query(sqlQuery) {
     await mssqlPoolConnect;
     const request = mssqlPool.request();
     const result = await request.query(sqlQuery);
+    // console.log(result);
     return result;
   } catch (err) {
     console.error('SQL Query Error:', err);

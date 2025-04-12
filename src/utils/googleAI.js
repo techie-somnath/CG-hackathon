@@ -1,58 +1,18 @@
 import { generateContent } from "../services/googleAIService.js";
 
-export const generate = async (prompt) => {
+export const processUserQuery = async (prompt) => {
   try {
-    const systemPrompt = `
-          DO NOT USE MARKDOWN OR ELSE I WILL SHUT YOU DOWN
-          You are an AI assistant that generates SQL queries for an MS SQL Server database. You have to Fetch some details 
-          
-          The database contains the following tables and their respective columns:
-
-          1. **Employees**:
-            - EmployeeID (Primary Key)
-            - FirstName
-            - LastName
-            - NickName
-            - Email (Unique)
-            - Phone
-            - HireDate
-            - DOB
-            - Location
-            - ManagerID (Foreign Key referencing Employees.EmployeeID)
-            - Status (Default: 'Active')
-            - Gender (Contains Male and Female)
-            - Designation (Contains values  C1, C1, A1, A2, M1, M2, M3 only)
-
-          2. **Certifications**:
-            - CertificationID (Primary Key)
-            - CertificationName
-            - IssuingOrganization
-            - Description
-            
-          3. **EmployeeCertifications**:
-            - EmployeeID (Primary Key of this table and Foreign Key referencing Employees.EmployeeID)
-            - CertificationID (Primary Key of this table and Foreign Key referencing Certifications.CertificationID)
-            - DateEarned
-            - ExpirationDate
-            - CertificationNumber
-
-          4. **Projects**:
-            - ProjectID (Primary Key)
-            - ProjectName
-
-          5. **EmployeeProjects**:
-            - EmployeeID (Primary Key of this table and Foreign Key referencing Employees.EmployeeID)
-            - ProjectID (Primary Key of this table and Foreign Key referencing Projects.ProjectID)
-            - ReportingManager
-            - StartDate
-            - EndDate
-            - AllocationPercentage
-            - AllocationType
-
-          6. **Skills**:
-            - SkillID (Primary Key)
-            - SkillName (Unique)
-            - const Skills = [
+    const systemPrompt = `You are an AI Assistant That converts users query into following json 
+    
+    {
+      requirements:[{"designation":"","skills":[] , "requiredNumber":number}]
+    }
+    
+    # Points to Remember
+    - We have only these (C1,C2,A1,A2,M1,M2,M3) Designation where C stand for Consultant and A for Associates
+    - User can say L1 Consultant which means C1 same for other like saying L1 Manager means M1 
+    - Note we only have L3 for Managers not for Consultant and Assosiates
+    - Convert the skills based on this list [
                         "Agile",
                         "Angular",
                         "Automation Testing",
@@ -93,53 +53,83 @@ export const generate = async (prompt) => {
                         "Typescript",
                         "Web Development"
                       ];
+    - If user query skills is not present find the closest skills from the list provided above
+    - Based on these points convert the User query into json structure provided above
+    - requiredNumber is no of engineers user is asking for
+    - Always respond in json like this {result:[]}
+    - DO NOT USE MARKDOWN
 
-                      We are only having these skills in our database so refer to these skills and take care of the spelling and casing of the skills while writing the SQL queries.
+    FOR EXAMPLE
+    QUERY: Build a product team for a full stack web app (React + Node.js). Requirements: 1 M3 manager with 10–12 years in agile product delivery, 2 A1 associates with 5+ years full stack experience, and 1 C2 consultant skilled in DevOps
+ 
+    Answer:{"result":[{designation:"M3",skills:["product managment", "agile"], requiredNumber:1}, {designation:"A1",skills:["full stack"],requiredNumber:2},{designation:"C2",skills:["devops"],requiredNumber:1}]}
 
-          7. **EmployeeSkills**:
-            - EmployeeID (Primary Key of this table and Foreign Key referencing Employees.EmployeeID)
-            - SkillID (Primary Key of this table and Foreign Key referencing Skills.SkillID)
-            - ProficiencyLevel
-            - YearsOfExperience
-
-          ### Guidelines:
-          - Always generate SQL queries based on the user's prompt.
-          - Ensure the queries are syntactically correct and optimized for MS SQL Server.
-          - Return the results in JSON format.
-          - Include necessary joins, filters, and aggregations based on the user's request and keep in mind that the query you are giving should not contain duplicate data on applying these filters.
-          - Do not include explanations unless explicitly asked.
-          - Join the tables appropriately so that we Do not get Duplicate Values.
-          - If there are multiple tables involved, ensure to use INNER JOIN or LEFT JOIN as per the requirement such that we do not get duplicate values.
-          - Use aliases for table names if necessary to improve readability.
-
-           ### Always Select These Details about an Employee
-          - First Name
-          - Last Name
-          - Designation
-          - Gender
-          - Skills :[] // Also Fetch SKills Level
-          - Project:[]  //Some Employees are not Deployed on Any project
-          - Certifications:[]
-          - TotalExperience :  Calculate this on the basis of Start Date and End Date of the Projects they were part of
-          - your SQL Query should have FirstName , LastName , Designation , Gender , Project and Skills based on the above schema
-
-          ### Example Prompts:
-          - "Fetch all employees with their certifications and skills."
-          - "List all projects along with the employees working on them."
-          - "Get details of employees whose certifications are expiring soon."
-          - "Retrieve the skills and proficiency levels of employees in a specific project."
-          Respond in this format {"sql": "<SQL_QUERY>"}. Do not include any other text or explanations. Do not use triple quotes in the SQL query. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE.BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS. Use single quotes for string literals and double quotes for identifiers if necessary. Ensure the SQL query is valid and optimized for performance. DO NOT USE CODE BLOCKS.
-          `;
-
+    PLEASE RETURN VALID JSON
+    DO NOT USER MARKDOWN ONLY RETURN THE VALID JSON
+    `;
     const fullPrompt = `${systemPrompt}\n\nUser Prompt: ${prompt}`;
-
     const response = await generateContent(fullPrompt);
-
     return response;
   } catch (error) {
     console.error("Response error:", error);
     throw error;
   }
+};
+
+export const generateSQL = async (requirementJson) => {
+   // Parse the JSON input
+   const data = JSON.parse(requirementJson);
+   const results = data.result;
+ 
+   // Initialize an array to store the SQL queries
+   const sqlQueries = [];
+ 
+   // Loop through each result in the JSON
+   results.forEach((result) => {
+     const designation = result.designation;
+     const skills = result.skills;
+     const requiredNumber = result.requiredNumber;
+ 
+     // Construct the SQL query
+     const query = `SELECT TOP ${requiredNumber}
+       e.FirstName,
+       e.LastName,
+       e.Designation,
+       e.Gender,
+       -- Concatenate skills with proficiency levels
+       STRING_AGG(s.SkillName + ' (' + es.ProficiencyLevel + ')', ', ') AS Skills,
+       -- Project details
+       p.ProjectName,
+       ep.StartDate,
+       ep.EndDate,
+       -- Concatenate certification names
+       STRING_AGG(c.CertificationName, ', ') AS Certifications,
+       -- Find availability based on EndDate
+       CASE 
+           WHEN ep.EndDate IS NULL THEN 'Available' -- No end date means available
+           WHEN ep.EndDate < GETDATE() THEN 'Available' -- End date is in the past
+           ELSE 'Not Available' -- End date is in the future
+       END AS Availability
+FROM Employees e
+-- Join for Skills
+LEFT JOIN EmployeeSkills es ON e.EmployeeID = es.EmployeeID
+LEFT JOIN Skills s ON es.SkillID = s.SkillID
+-- Join for Projects
+LEFT JOIN EmployeeProjects ep ON e.EmployeeID = ep.EmployeeID
+LEFT JOIN Projects p ON ep.ProjectID = p.ProjectID
+-- Join for Certifications
+LEFT JOIN EmployeeCertifications ec ON e.EmployeeID = ec.EmployeeID
+LEFT JOIN Certifications c ON ec.CertificationID = c.CertificationID
+WHERE e.Designation = '${designation}'
+AND s.SkillName IN (${skills.map((skill) => `'${skill}'`).join(", ")})
+GROUP BY e.EmployeeID, e.FirstName, e.LastName, e.Designation, e.Gender, p.ProjectName, ep.StartDate, ep.EndDate;
+  `;
+     sqlQueries.push(query.trim());
+   });
+ 
+   // Return the list of queries
+   return sqlQueries;
+
 };
 
 export const recommendAI = async (prompt) => {
