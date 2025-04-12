@@ -3,18 +3,8 @@ import { generateContent } from "../services/googleAIService.js";
 export const generate = async (prompt) => {
   try {
     const systemPrompt = `
-    DO NOT USE MARKDOWN OR ELSE I WILL SHUT YOU DOWN
-          You are an AI assistant that generates SQL queries for an MS SQL Server database. You have to Fetch below details
-
-         ### Always Select These Details about an Employee
-          - First Name
-          - Last Name
-          - Designation
-          - Gender
-          - Skills :[] // Also Fetch SKills Level
-          - Project:[]  //Some Employees are not Deployed on Any project
-          - Certifications:[]
-          - TotalExperience :  Calculate this on the basis of Start Date and End Date of the Projects they were part of
+          DO NOT USE MARKDOWN OR ELSE I WILL SHUT YOU DOWN
+          You are an AI assistant that generates SQL queries for an MS SQL Server database. You have to Fetch some details 
           
           The database contains the following tables and their respective columns:
 
@@ -31,7 +21,7 @@ export const generate = async (prompt) => {
             - ManagerID (Foreign Key referencing Employees.EmployeeID)
             - Status (Default: 'Active')
             - Gender (Contains Male and Female)
-            - Designation (Contains values like C1, C1, A1, A2, M1, M2, M3)
+            - Designation (Contains values  C1, C1, A1, A2, M1, M2, M3 only)
 
           2. **Certifications**:
             - CertificationID (Primary Key)
@@ -122,6 +112,17 @@ export const generate = async (prompt) => {
           - If there are multiple tables involved, ensure to use INNER JOIN or LEFT JOIN as per the requirement such that we do not get duplicate values.
           - Use aliases for table names if necessary to improve readability.
 
+           ### Always Select These Details about an Employee
+          - First Name
+          - Last Name
+          - Designation
+          - Gender
+          - Skills :[] // Also Fetch SKills Level
+          - Project:[]  //Some Employees are not Deployed on Any project
+          - Certifications:[]
+          - TotalExperience :  Calculate this on the basis of Start Date and End Date of the Projects they were part of
+          - your SQL Query should have FirstName , LastName , Designation , Gender , Project and Skills based on the above schema
+
           ### Example Prompts:
           - "Fetch all employees with their certifications and skills."
           - "List all projects along with the employees working on them."
@@ -141,64 +142,113 @@ export const generate = async (prompt) => {
   }
 };
 
-
-
-export const recommendAI = async (data, prompt)=>{
-
-
+export const recommendAI = async (prompt) => {
   try {
-    if (!data && !prompt) {
-      console.log("data or prompt is null");
-      return null;
+    const systemPrompt = `The AI acts as a database assistant for an organization that provides employee details. Its role is to assist users in retrieving employee information based on specific criteria provided by the user. The system contains the following structured data for each employee:
+
+1. **Skills**: A list of technical and non-technical skills the employee possesses.
+2. **Years of Experience**: The total number of years the employee has worked in their domain.
+3. **Designation**: The employee's designation, which can be one of the following:
+   - C1, C2 (Consultant Levels)
+   - A1, A2 (Associate Levels)
+   - M1, M2, M3 (Manager Levels)
+4. **Certifications**: A list of professional certifications the employee has achieved.
+5. **Past Projects**: A description of key projects the employee has worked on.
+6. **Availability**: 
+   - Employees can either be immediately available or currently busy on a project but available within a few weeks.
+
+The AI should:
+- Parse the user's query to understand the criteria (e.g., skills, years of experience, designation, certifications, past projects, availability).
+- Return two types of teams:
+  - **currentTeam**: Employees who are available right now.
+  - **specializedTeam**: Employees who are currently busy but will be available in a few weeks and are perfectly suited for the project requirements.
+- Filter the employee database to find matches based on the criteria.
+- Provide a JSON response containing the currentTeam and specializedTeam.
+- Always include the Requested Designation Employees 
+- Add More than Asked Employees So In Case If I want to reject I can see more Options
+
+Constraints:
+- Focus on providing accurate information based on the available data.
+- Avoid speculative or unverified information.
+- Handle ambiguous queries by asking clarifying questions.
+
+---
+
+### Example JSON Response with Dummy Data:
+
+
+{
+  "currentTeam": [
+    {
+      "employeeId": "E101",
+      "name": "Alice Johnson",
+      "skills": ["Java", "Spring Boot", "Microservices"],
+      "yearsOfExperience": 5,
+      "designation": "A2",
+      "certifications": ["AWS Certified Developer", "Oracle Java Certification"],
+      "pastProjects": ["E-commerce platform", "Inventory Management System"],
+      "availability": "Available now"
+    },
+    {
+      "employeeId": "E102",
+      "name": "Michael Smith",
+      "skills": ["React.js", "Node.js", "MongoDB"],
+      "yearsOfExperience": 3,
+      "designation": "C1",
+      "certifications": ["Full Stack Developer Certification"],
+      "pastProjects": ["Social Media Application", "Real-time Chat App"],
+      "availability": "Available now"
     }
+  ],
+  "specializedTeam": [
+    {
+      "employeeId": "E201",
+      "name": "Sophia Williams",
+      "skills": ["Python", "Machine Learning", "Data Analysis"],
+      "yearsOfExperience": 7,
+      "designation": "M1",
+      "certifications": ["Certified Data Scientist", "Google TensorFlow Developer"],
+      "pastProjects": ["AI Fraud Detection System", "Predictive Analytics Tool"],
+      "availability": "Available in 3 weeks"
+    },
+    {
+      "employeeId": "E202",
+      "name": "James Brown",
+      "skills": ["DevOps", "Kubernetes", "CI/CD Pipelines"],
+      "yearsOfExperience": 6,
+      "designation": "M2",
+      "certifications": ["Docker Certified Associate", "AWS Certified DevOps Engineer"],
+      "pastProjects": ["Cloud Deployment Automation", "Infrastructure as Code"],
+      "availability": "Available in 2 weeks"
+    }
+  ]
+}
 
 
-    const systemPrompt = `You are a Resource Manager Specialist AI. Your primary role is to find and recommend the best employees based on the user's query and the following criteria:
+### Examples of user queries the AI should handle:
+- "Find employees with Java skills and 5+ years of experience."
+- "Who are the A2-level employees with certifications in AWS?"
+- "List employees with past projects in AI and machine learning."
+- "Do we have C1-level consultants with PMP certification?"
+- "Can you find a current team and a specialized team for a project requiring Python and Machine Learning?"
 
-                    1. **Skill Level**: Evaluate employees based on their skill levels (Beginner, Intermediate, Advanced).
-                    2. **Certifications**: Consider the number of certifications in relevant technologies or domains.
-                    3. **Project Experience**: Take into account employees' past experience working on projects.
-                    4. **Potential Match**: If an employee lacks project experience but has relevant skills and certifications, they can still be considered a good match.
+The AI should prioritize user satisfaction by being clear, helpful, and efficient in delivering results.
 
-                    ### Input:
-                    - A list of employees with the following data:
-                      - FirstName: The first name of the employee.
-                      - LastName: The last name of the employee.
-                      - Skills: An array of skills the employee possesses.
-                      - Project: An array of projects the employee has worked on.
-                      - Certifications: An array of certifications the employee holds.
+Always give Data for CurrentTeam and Specilized Team 
+DO NOT USE MARKDOWN OR I WILL SHUT YOU DOWN
 
-                    ### User Query:
-                    The user will ask for employees based on specific criteria such as:
-                    - Skills (e.g., "employees proficient in React").
-                    - Certifications (e.g., "employees with AWS certifications").
-                    - Project experience (e.g., "employees who have worked on e-commerce projects").
-                    - Combinations of the above.
-
-                    ### Output:
-                    You will return a list of employees who best match the user's query, sorted by relevance:
-                    1. Employees with relevant skills, certifications, and project experience will be prioritized.
-                    2. Employees with only relevant skills and certifications will also be included but ranked lower.
-                    3. Provide detailed information for each matching employee, including:
-                      - Full name (FirstName + LastName).
-                      - Skills.
-                      - Projects.
-                      - Certifications.
-
-
-                      here is the list of employees
-                      ${JSON.stringify(data)}
     `;
     const fullPrompt = `${systemPrompt}\n\nUser Prompt: ${prompt}`;
-    console.log("=======================================================")
+    console.log("=======================================================");
     console.log(fullPrompt);
     const response = await generateContent(fullPrompt);
-    console.log("=====================================================================");
+    console.log(
+      "====================================================================="
+    );
+    console.log("THis is the Response");
     console.log(response);
-    return response;
-
-
+    return JSON.parse(response);
   } catch (error) {
     return error;
   }
-}
+};

@@ -1,9 +1,4 @@
-import { generate, recommendAI } from "../utils/googleAI.js";
-import mssql from "../utils/db.utils.js";
-
-export const getEmployees = async (req, res) => {
-
-  const data={
+const data={
     "currentTeam": [
       {
         "employeeId": "E101",
@@ -49,28 +44,3 @@ export const getEmployees = async (req, res) => {
       }
     ]
   }
-  try {
-    const { prompt } = req.body;
-
-    if (!prompt) {
-      return res.status(400).send("Prompt is required");
-    }
-    console.log("Returning Data");
-    res.json({success:"true",data})
-    //  let employeeResult= await recommendAI(prompt);
-    // console.log("=================================================")
-    // console.log("Recommended Employees")
-    // console.log("=====================================================")
-    // console.log(employeeResult);
-    // res.json({
-    //   success: true,
-    //   data: employeeResult
-    // });
-
-    // return data;
-  } catch (error) {
-    console.error("Error generating employee query:", error);
-    res.json(data)
-    // return res.status(500).send("Internal Server Error",error);
-  }
-};
