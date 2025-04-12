@@ -10,22 +10,24 @@ export const getEmployees = async (req, res) => {
         "name": "Alice Johnson",
         "skills": ["Java", "Spring Boot", "Microservices"],
         "yearsOfExperience": 5,
-        "designation": "A2",
+        "designation": "Associate 2",
         "certifications": ["AWS Certified Developer", "Oracle Java Certification"],
         "pastProjects": ["E-commerce platform", "Inventory Management System"],
         "availability": "Available now",
-        "isRejected":false
+        "isRejected":false,
+        "Gender":"M"
       },
       {
         "employeeId": "E102",
         "name": "Michael Smith",
         "skills": ["React.js", "Node.js", "MongoDB"],
         "yearsOfExperience": 3,
-        "designation": "C1",
+        "designation": "Consultant 1",
         "certifications": ["Full Stack Developer Certification"],
         "pastProjects": ["Social Media Application", "Real-time Chat App"],
         "availability": "Available now",
-        "isRejected":false
+        "isRejected":false,
+          "Gender":"M"
       }
     ],
     "specializedTeam": [
@@ -34,22 +36,24 @@ export const getEmployees = async (req, res) => {
         "name": "Sophia Williams",
         "skills": ["Python", "Machine Learning", "Data Analysis"],
         "yearsOfExperience": 7,
-        "designation": "M1",
+        "designation": "Manager 1",
         "certifications": ["Certified Data Scientist", "Google TensorFlow Developer"],
         "pastProjects": ["AI Fraud Detection System", "Predictive Analytics Tool"],
         "availability": "Available in 3 weeks",
-        "isRejected":false
+        "isRejected":false,
+          "Gender":"F"
       },
       {
         "employeeId": "E202",
         "name": "James Brown",
         "skills": ["DevOps", "Kubernetes", "CI/CD Pipelines"],
         "yearsOfExperience": 6,
-        "designation": "M2",
+        "designation": "Manager 2",
         "certifications": ["Docker Certified Associate", "AWS Certified DevOps Engineer"],
         "pastProjects": ["Cloud Deployment Automation", "Infrastructure as Code"],
         "availability": "Available in 2 weeks",
-        "isRejected":false
+        "isRejected":false,
+          "Gender":"M"
       }
     ]
   }
@@ -60,16 +64,19 @@ export const getEmployees = async (req, res) => {
       return res.status(400).send("Prompt is required");
     }
     console.log("Returning Data");
-    res.json({success:"true",data})
-    //  let employeeResult= await recommendAI(prompt);
+    // setTimeout(() => {
+    //   res.json({ success: "true", data });
+    // }, 4000); // 4000 milliseconds = 4 seconds
+    // res.json({success:"true",data})
+     let employeeResult= await recommendAI(prompt);
     // console.log("=================================================")
     // console.log("Recommended Employees")
     // console.log("=====================================================")
     // console.log(employeeResult);
-    // res.json({
-    //   success: true,
-    //   data: employeeResult
-    // });
+    res.json({
+      success: true,
+      data: employeeResult
+    });
 
     // return data;
   } catch (error) {

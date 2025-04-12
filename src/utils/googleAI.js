@@ -152,10 +152,12 @@ export const recommendAI = async (prompt) => {
    - C1, C2 (Consultant Levels)
    - A1, A2 (Associate Levels)
    - M1, M2, M3 (Manager Levels)
+   - Please Write Full Name of the Designation like Consultant 1 , Consultant 2 , Associate 1 ,Associate 2, Manager 1 , Manager 2 , Manager 3  etc.
 4. **Certifications**: A list of professional certifications the employee has achieved.
 5. **Past Projects**: A description of key projects the employee has worked on.
 6. **Availability**: 
    - Employees can either be immediately available or currently busy on a project but available within a few weeks.
+7. **Gender**:M for Male and F for Female  
 
 The AI should:
 - Parse the user's query to understand the criteria (e.g., skills, years of experience, designation, certifications, past projects, availability).
@@ -185,22 +187,24 @@ Constraints:
       "name": "Alice Johnson",
       "skills": ["Java", "Spring Boot", "Microservices"],
       "yearsOfExperience": 5,
-      "designation": "A2",
+      "designation": "Associate 2",
       "certifications": ["AWS Certified Developer", "Oracle Java Certification"],
       "pastProjects": ["E-commerce platform", "Inventory Management System"],
       "availability": "Available now",
-      "isRejected":false
+      "isRejected":false,
+      "Gender":"M"
     },
     {
       "employeeId": "E102",
       "name": "Michael Smith",
       "skills": ["React.js", "Node.js", "MongoDB"],
       "yearsOfExperience": 3,
-      "designation": "C1",
+      "designation": "Consultant 1",
       "certifications": ["Full Stack Developer Certification"],
       "pastProjects": ["Social Media Application", "Real-time Chat App"],
       "availability": "Available now",
-       "isRejected":false
+       "isRejected":false,
+        "Gender":"M"
     }
   ],
   "specializedTeam": [
@@ -209,22 +213,24 @@ Constraints:
       "name": "Sophia Williams",
       "skills": ["Python", "Machine Learning", "Data Analysis"],
       "yearsOfExperience": 7,
-      "designation": "M1",
+      "designation": "Manager 1",
       "certifications": ["Certified Data Scientist", "Google TensorFlow Developer"],
       "pastProjects": ["AI Fraud Detection System", "Predictive Analytics Tool"],
       "availability": "Available in 3 weeks",
-       "isRejected":false
+       "isRejected":false,
+        "Gender":"F"
     },
     {
       "employeeId": "E202",
       "name": "James Brown",
       "skills": ["DevOps", "Kubernetes", "CI/CD Pipelines"],
       "yearsOfExperience": 6,
-      "designation": "M2",
+      "designation": "Manager 2",
       "certifications": ["Docker Certified Associate", "AWS Certified DevOps Engineer"],
       "pastProjects": ["Cloud Deployment Automation", "Infrastructure as Code"],
       "availability": "Available in 2 weeks",
-       "isRejected":false
+       "isRejected":false,
+        "Gender":"M"
     }
   ]
 }
